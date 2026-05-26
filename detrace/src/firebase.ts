@@ -7,21 +7,19 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
+// Firebase config — values baked in for reliable deployment
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyC4wdU4SPunAq2V0HOp1-o0N8wYtujaXRw",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "detrace-25103.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "detrace-25103",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "detrace-25103.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "264202419529",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:264202419529:web:bec7d27a9598352344ae98"
 };
 
-// Always initialize Firebase — no sandbox fallback
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-
-// Keep this as true always so App.tsx knows Firebase is ready
 export const isFirebaseConfigured = true;
 
 export const OperationType = {
