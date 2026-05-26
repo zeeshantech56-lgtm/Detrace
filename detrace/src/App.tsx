@@ -182,10 +182,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, type, setType, o
         <h2 className="text-3xl font-serif text-[#1A1A1A] mb-3 tracking-tight font-black italic">
           {type === 'signin' ? 'Ethereal Access' : 'Create Identity'}
         </h2>
+        {type === 'signup' && (
+          <div className="flex items-center gap-2.5 bg-[#C16E3E]/10 border border-[#C16E3E]/30 px-4 py-3 mb-4">
+            <span className="text-lg">🎁</span>
+            <div>
+              <span className="text-xs font-black uppercase tracking-wider text-[#C16E3E] block">Welcome Gift</span>
+              <span className="text-sm font-semibold text-[#1A1A1A]">Get <strong>15 free credits</strong> instantly on signup — no card required.</span>
+            </div>
+          </div>
+        )}
         <p className="text-sm text-slate-600 mb-6 font-light leading-relaxed">
           {type === 'signin' 
             ? 'Sign in to confirm your identity parameters and sync historical logs.' 
-            : 'Join the atelier to activate global metadata purging and remote secure logging.'}
+            : 'Create your free account and start removing hidden metadata from your images today.'}
         </p>
 
         {errorMsg && (
@@ -805,14 +814,32 @@ export default function App() {
                   </button>
                   <button 
                     onClick={() => setAuthMode('signup')} 
-                    className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-bold bg-[#1A1A1A] hover:bg-[#C16E3E] text-[#F9F8F6] px-5 py-2.5 transition-all shadow-sm"
+                    className="relative flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-bold bg-[#1A1A1A] hover:bg-[#C16E3E] text-[#F9F8F6] px-5 py-2.5 transition-all shadow-sm group"
                   >
-                    <UserPlus className="w-3.5 h-3.5" /> Join Atelier
+                    <UserPlus className="w-3.5 h-3.5" /> Sign Up Free
+                    <span className="absolute -top-2.5 -right-2.5 bg-[#C16E3E] text-white text-[8px] font-black px-1.5 py-0.5 uppercase tracking-wide leading-none">15 Credits</span>
                   </button>
                 </>
               )}
             </div>
           </header>
+
+          {/* PROMO ANNOUNCEMENT BAR — shown only to guests */}
+          {!currentUser && (
+            <div className="w-full bg-[#1A1A1A] text-[#F9F8F6] px-6 py-2.5 flex items-center justify-center gap-3 text-center">
+              <span className="text-sm">🎁</span>
+              <p className="text-[11px] uppercase tracking-[0.2em] font-bold">
+                New here? <span className="text-[#C16E3E]">Sign up free</span> and get{' '}
+                <span className="text-[#C16E3E] font-black">15 credits</span> instantly — no credit card required.
+              </p>
+              <button
+                onClick={() => setAuthMode('signup')}
+                className="ml-2 text-[10px] uppercase tracking-widest font-black border border-[#C16E3E] text-[#C16E3E] hover:bg-[#C16E3E] hover:text-white px-3 py-1 transition-all whitespace-nowrap"
+              >
+                Claim Now →
+              </button>
+            </div>
+          )}
 
           {/* APP BODY BLOCK */}
           <main className="flex-grow max-w-7xl mx-auto px-6 py-12 md:py-16 w-full flex flex-col justify-center gap-16">
