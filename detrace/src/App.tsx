@@ -112,36 +112,24 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, type, setType, o
     setErrorMsg('');
 
     try {
-      if (isFirebaseConfigured && auth) {
-        if (type === 'signup') {
-          const credential = await createUserWithEmailAndPassword(auth, email, password);
-          // Set initial Firestore record with compliant parameters
-          if (db) {
-            const userRef = doc(db, 'users', credential.user.uid);
-            await setDoc(userRef, {
-              uid: credential.user.uid,
-              email: credential.user.email,
-              credits: 5,
-              createdAt: serverTimestamp(),
-              updatedAt: serverTimestamp()
-            });
-          }
-          onAuthSuccess(credential.user);
-        } else {
-          const credential = await signInWithEmailAndPassword(auth, email, password);
-          onAuthSuccess(credential.user);
+      if (type === 'signup') {
+        const credential = await createUserWithEmailAndPassword(auth, email, password);
+        if (db) {
+          const userRef = doc(db, 'users', credential.user.uid);
+          await setDoc(userRef, {
+            uid: credential.user.uid,
+            email: credential.user.email,
+            credits: 5,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
         }
-        onClose();
+        onAuthSuccess(credential.user);
       } else {
-        // Graceful Local Fallback mode initialization
-        const fakeUser = {
-          uid: 'local_sandbox_user',
-          email: email,
-          isAnonymous: false
-        };
-        onAuthSuccess(fakeUser);
-        onClose();
+        const credential = await signInWithEmailAndPassword(auth, email, password);
+        onAuthSuccess(credential.user);
       }
+      onClose();
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message || "An authentication boundary anomaly occurred.");
@@ -151,10 +139,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, type, setType, o
   };
 
   const signInWithGoogle = async () => {
-    if (!isFirebaseConfigured || !auth) {
-      setErrorMsg("Firebase is currently in local offline sandbox mode. Use the credentials fields above.");
-      return;
-    }
     setLoading(true);
     setErrorMsg('');
     try {
@@ -370,27 +354,19 @@ export default function App() {
 
   // Load and subscribe to Firebase Auth and user configuration parameters
   useEffect(() => {
-    if (isFirebaseConfigured && auth) {
-      const unsub = onAuthStateChanged(auth, async (fireUser) => {
-        if (fireUser) {
-          setCurrentUser(fireUser);
-          await fetchUserMetrics(fireUser.uid);
-          await fetchScanLogs(fireUser.uid);
-        } else {
-          setCurrentUser(null);
-          // Set to default or restore from localStorage if needed
-          const storedCredits = localStorage.getItem('detrace_credits');
-          setCredits(storedCredits ? parseInt(storedCredits) : 5);
-          loadLocalLogs();
-        }
-      });
-      return () => unsub();
-    } else {
-      // Offline Local Sandbox Init
-      const storedCredits = localStorage.getItem('detrace_credits');
-      setCredits(storedCredits ? parseInt(storedCredits) : 5);
-      loadLocalLogs();
-    }
+    const unsub = onAuthStateChanged(auth, async (fireUser) => {
+      if (fireUser) {
+        setCurrentUser(fireUser);
+        await fetchUserMetrics(fireUser.uid);
+        await fetchScanLogs(fireUser.uid);
+      } else {
+        setCurrentUser(null);
+        const storedCredits = localStorage.getItem('detrace_credits');
+        setCredits(storedCredits ? parseInt(storedCredits) : 5);
+        loadLocalLogs();
+      }
+    });
+    return () => unsub();
   }, []);
 
   const loadLocalLogs = () => {
