@@ -312,6 +312,7 @@ export default function App() {
   const [, setCleanBlob] = useState<Blob | null>(null);
   const [stats, setStats] = useState({ old: '0', new: '0', delta: '—' });
   const [engineUsed, setEngineUsed] = useState('');
+  const [loadedImage, setLoadedImage] = useState<HTMLImageElement | null>(null);
 
   const [scanProgress, setScanProgress] = useState(0);
   const [threats, setThreats] = useState<Threat[]>([]);
@@ -428,30 +429,41 @@ export default function App() {
     }, 40);
   };
 
-  // Draw image onto canvases
+  // Load image when previewUrl changes
   useEffect(() => {
-    if (status === 'review' && previewUrl) {
+    if (previewUrl) {
       const img = new Image();
       img.onload = () => {
+        setLoadedImage(img);
         imgRef.current = img;
-        [canvasRef, maskCanvasRef].forEach((ref) => {
-          if (ref.current) {
-            const ctx = ref.current.getContext('2d');
-            if (ctx) {
-              ref.current.width = img.naturalWidth;
-              ref.current.height = img.naturalHeight;
-              if (ref === canvasRef) {
-                ctx.drawImage(img, 0, 0);
-              } else {
-                ctx.clearRect(0, 0, ref.current.width, ref.current.height);
-              }
-            }
-          }
-        });
       };
       img.src = previewUrl;
+    } else {
+      setLoadedImage(null);
+      imgRef.current = null;
     }
-  }, [status, previewUrl]);
+  }, [previewUrl]);
+
+  // Draw image onto canvases when mounted or loaded
+  useEffect(() => {
+    if (status === 'review' && loadedImage) {
+      [canvasRef, maskCanvasRef].forEach((ref) => {
+        const canvas = ref.current;
+        if (canvas) {
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            canvas.width = loadedImage.naturalWidth;
+            canvas.height = loadedImage.naturalHeight;
+            if (ref === canvasRef) {
+              ctx.drawImage(loadedImage, 0, 0);
+            } else {
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+          }
+        }
+      });
+    }
+  }, [status, loadedImage]);
 
   // Cleanup object URLs on unmount
   useEffect(() => {
