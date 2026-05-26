@@ -119,7 +119,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, type, setType, o
           await setDoc(userRef, {
             uid: credential.user.uid,
             email: credential.user.email,
-            credits: 5,
+            credits: 15,
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
           });
@@ -153,7 +153,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, type, setType, o
           await setDoc(userRef, {
             uid: credential.user.uid,
             email: credential.user.email,
-            credits: 5,
+            credits: 15,
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
           });
